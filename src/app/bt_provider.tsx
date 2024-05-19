@@ -1,8 +1,7 @@
 "use client";
 
-import { dalyCommandMessage } from '@/bt/util';
 import { Button } from '@/components/ui/button';
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { Spinner } from './spinner';
 
 // Define the shape of the context
@@ -25,12 +24,6 @@ interface Props {
 export const BluetoothProvider: React.FC<Props> = ({ children }: Props) => {
     const [isConnecting, setIsConnecting] = useState(false);
     const [ctx, setCtx] = useState<BluetoothContextData | undefined>(undefined);
-
-    if (typeof window === 'undefined') {
-        return (
-            <div>Loading...</div>
-        )
-    }
 
     const connect = async () => {
         setIsConnecting(true)
@@ -75,7 +68,7 @@ export const BluetoothProvider: React.FC<Props> = ({ children }: Props) => {
 
     return (
         <div className="flex h-screen w-full items-center justify-center">
-            <Button onClick={connect} className="relative" disabled={isConnecting}>
+            <Button onClick={connect} size="lg" className="relative" disabled={isConnecting}>
                 {isConnecting && <Spinner />} Connect to Daly BMS
                 <span className="absolute inset-0 flex items-center justify-center transition-opacity " />
             </Button>

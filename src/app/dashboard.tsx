@@ -18,7 +18,7 @@ export function Dashboard({ soc, status, mosfet_status }: Props) {
             <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
                 <div className="grid gap-1">
                     <h1 className="text-2xl font-bold tracking-tight">Battery Dashboard</h1>
-                    <p className="text-gray-500 dark:text-gray-400">Real-time monitoring of your battery's vital stats.</p>
+                    <p className="text-gray-500 dark:text-gray-400">Real-time monitoring of your battery&apos;s vital stats.</p>
                 </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 xl:gap-8">

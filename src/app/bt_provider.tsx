@@ -26,6 +26,12 @@ export const BluetoothProvider: React.FC<Props> = ({ children }: Props) => {
     const [isConnecting, setIsConnecting] = useState(false);
     const [ctx, setCtx] = useState<BluetoothContextData | undefined>(undefined);
 
+    if (typeof window === 'undefined') {
+        return (
+            <div>Server side...</div>
+        )
+    }
+
     const connect = async () => {
         setIsConnecting(true)
         const options = {

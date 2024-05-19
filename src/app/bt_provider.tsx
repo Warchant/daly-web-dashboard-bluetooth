@@ -41,6 +41,12 @@ export const BluetoothProvider: React.FC<Props> = ({ children }: Props) => {
             setCtx(undefined)
         })
 
+        if (!device.gatt) {
+            alert("device.gatt is undefined, cannot proceed")
+            setIsConnecting(false)
+            return
+        }
+
         // start to watch advertisements
         const server = await device.gatt.connect();
         const service = await server.getPrimaryService('0000fff0-0000-1000-8000-00805f9b34fb');

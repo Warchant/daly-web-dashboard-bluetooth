@@ -7,6 +7,7 @@ import {
 	DalyMosfetStatusResponse,
 	DalySocResponse,
 	DalyStatusResponse,
+	DalyTemperatureResponse,
 } from "@/bt/util";
 import { CardContent, Card } from "@/components/ui/card";
 
@@ -14,9 +15,10 @@ interface Props {
 	soc: DalySocResponse;
 	status: DalyStatusResponse;
 	mosfet_status: DalyMosfetStatusResponse;
+	temperature: DalyTemperatureResponse;
 }
 
-export function Dashboard({ soc, status, mosfet_status }: Props) {
+export function Dashboard({ soc, status, mosfet_status, temperature }: Props) {
 	return (
 		<div className="flex flex-col gap-6 md:gap-8 px-4 md:px-6 py-12">
 			<div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
@@ -32,7 +34,7 @@ export function Dashboard({ soc, status, mosfet_status }: Props) {
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 xl:gap-8">
 				<Card>
 					<CardContent className="flex flex-col items-center justify-center gap-4 p-6">
-						<div className="text-4xl font-bold">{soc.voltage}</div>
+						<div className="text-4xl font-bold">{soc.voltage}V</div>
 						<p className="text-gray-500 dark:text-gray-400">Voltage</p>
 					</CardContent>
 				</Card>
@@ -45,7 +47,7 @@ export function Dashboard({ soc, status, mosfet_status }: Props) {
 							<BoltIcon className="w-8 h-8 text-red-500" />
 						)}
 
-						<div className="text-4xl font-bold">{soc.current}</div>
+						<div className="text-4xl font-bold">{soc.current}A</div>
 						<p className="text-gray-500 dark:text-gray-400">Current</p>
 					</CardContent>
 				</Card>
@@ -56,25 +58,31 @@ export function Dashboard({ soc, status, mosfet_status }: Props) {
 					</CardContent>
 				</Card>
 			</div>
-			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6 xl:gap-8">
+			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6 xl:gap-8">
 				<Card>
 					<CardContent className="flex flex-col items-center justify-center gap-4 p-6">
-						<div className="text-2xl font-bold">Mode</div>
+						<div className="text-2xl font-bold">
+							{temperature.highest_temperature}°C
+						</div>
+						<p className="text-gray-500 dark:text-gray-400">Temperature</p>
+					</CardContent>
+				</Card>
+				<Card>
+					<CardContent className="flex flex-col items-center justify-center gap-4 p-6">
+						<div className="text-2xl font-bold">{mosfet_status.mode}</div>
 						{mosfet_status.mode === "discharging" && (
 							<BoltIcon className="w-8 h-8 text-red-500" />
 						)}
 						{mosfet_status.mode === "charging" && (
 							<BoltIcon className="w-8 h-8 text-green-500" />
 						)}
-						<p className="text-gray-500 dark:text-gray-400">
-							{mosfet_status.mode}
-						</p>
+						<p className="text-gray-500 dark:text-gray-400">Mode</p>
 					</CardContent>
 				</Card>
 				<Card>
 					<CardContent className="flex flex-col items-center justify-center gap-4 p-6">
 						<div className="text-4xl font-bold">
-							{mosfet_status.capacity_ah}
+							{mosfet_status.capacity_ah}A
 						</div>
 						<p className="text-gray-500 dark:text-gray-400">Capacity</p>
 					</CardContent>
@@ -82,7 +90,7 @@ export function Dashboard({ soc, status, mosfet_status }: Props) {
 				<Card>
 					<CardContent className="flex flex-col items-center justify-center gap-4 p-6">
 						<div className="text-4xl font-bold">{status.num_cycles}</div>
-						<p className="text-gray-500 dark:text-gray-400">Num Cycles</p>
+						<p className="text-gray-500 dark:text-gray-400">Cycles</p>
 					</CardContent>
 				</Card>
 			</div>

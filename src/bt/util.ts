@@ -93,10 +93,34 @@ const unpackResponse_0x94 = (parts: DataView): DalyStatusResponse => {
     return data;
 };
 
+export type DalyTemperatureResponse = {
+    highest_temperature: number;
+    highest_sensor: number;
+    lowest_temperature: number;
+    lowest_sensor: number;
+};
 
+const unpackResponse_0x92 = (view: DataView): DalyTemperatureResponse => {
+    let parts = [
+        view.getInt8(0),
+        view.getInt8(1),
+        view.getInt8(2),
+        view.getInt8(3),
+    ];
+
+    let data = {
+        highest_temperature: parts[0] - 40,
+        highest_sensor: parts[1],
+        lowest_temperature: parts[2] - 40,
+        lowest_sensor: parts[3],
+    };
+
+    return data;
+};
 
 export type Response =
     | ({ command: 0x90 } & DalySocResponse)
+    | ({ command: 0x92 } & DalyTemperatureResponse)
     | ({ command: 0x93 } & DalyMosfetStatusResponse)
     | ({ command: 0x94 } & DalyStatusResponse);
 
@@ -121,6 +145,11 @@ export function unpackResponses(data: DataView): Response[] {
                         command,
                         ...unpackResponse_0x90(new DataView(response_bytes.buffer)),
                     };
+                case 0x92:
+                    return {
+                        command,
+                        ...unpackResponse_0x92(new DataView(response_bytes.buffer)),
+                    };
                 case 0x93:
                     return {
                         command,
@@ -132,9 +161,11 @@ export function unpackResponses(data: DataView): Response[] {
                         ...unpackResponse_0x94(new DataView(response_bytes.buffer)),
                     };
                 default:
-                    throw new Error(`Unknown command: ${command}`);
+                    console.log(`skipping unknown command ${command}`);
+                    return undefined;
             }
-        });
+        })
+        .filter((r) => r !== undefined) as Response[];
 }
 
 export type DalyEvent =
@@ -209,6 +240,10 @@ export class Daly {
 
     async get_status(): Promise<void> {
         return await this.query(0x94);
+    }
+
+    async get_temperature(): Promise<void> {
+        return await this.query(0x92);
     }
 }
 

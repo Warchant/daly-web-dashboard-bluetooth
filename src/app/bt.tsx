@@ -3,40 +3,49 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
 import { useBluetooth } from "./bt_provider";
-import { dalyCommandMessage, query, unpackResponse, unpackResponse_0x90, unpackResponse_0x93, unpackResponse_0x94 } from "@/bt/util";
-import { bytesToHex, hexToBytes } from "bytes.ts"
-import { Button } from "@/components/ui/button";
+import { Daly, DalyMosfetStatusResponse, DalySocResponse, DalyStatusResponse } from "@/bt/util";
+import { Dashboard } from "./dashboard";
 
 
 export function Bluetooth() {
-    const { device, service, tx, rx } = useBluetooth();
+    const { tx, rx } = useBluetooth();
 
-    const [data, setData] = useState<object[]>([])
+    const daly = new Daly(tx, rx);
+    const [soc, setSoc] = useState<DalySocResponse>({
+        current: 0,
+        soc: 0,
+        voltage: 0
+    });
+    const [status, setStatus] = useState<DalyStatusResponse>({
+        charger_running: false,
+        load_running: false,
+        num_cells: 0,
+        num_cycles: 0,
+        num_temps: 0
+    });
+    const [mosfetStatus, setMosfetStatus] = useState<DalyMosfetStatusResponse>({
+        capacity_ah: 0,
+        charging_mosfet: 0,
+        discharging_mosfet: 0,
+        mode: "stationary"
+    });
 
     useEffect(() => {
-        const handler = (event: any) => {
-            const data = event.target.value;
-            const responses = unpackResponse(data);
-            responses.forEach((r) => {
-                setData((prev) => {
-                    return [...prev, r]
-                })
-            })
-        }
-        // subscribe
-        rx.addEventListener('characteristicvaluechanged', handler)
-        rx.startNotifications();
-
-        return () => {
-            rx.stopNotifications();
-            // rx.removeEventListener('characteristicvaluechanged', handler)
-        }
+        daly.on("soc", setSoc)
+        daly.on("status", setStatus)
+        daly.on("mosfet_status", setMosfetStatus)
     }, [])
 
     useEffect(() => {
         const id = setInterval(() => {
-            tx.writeValue(dalyCommandMessage(0x90))
-        }, 5000)
+            async function query() {
+                await daly.get_soc()
+                await daly.get_mosfet_status()
+                await daly.get_status()
+            }
+
+            query()
+        }, 2000)
 
         return () => {
             clearInterval(id)
@@ -44,14 +53,6 @@ export function Bluetooth() {
     }, [])
 
     return (
-        <div className="flex h-screen w-full items-center justify-center">
-            {data.map((r, i) => {
-                return (
-                    <p key={i}>
-                        {JSON.stringify(r)}
-                    </p>
-                )
-            })}
-        </div>
+        <Dashboard soc={soc} status={status} mosfet_status={mosfetStatus} />
     )
 }

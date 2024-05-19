@@ -7,12 +7,6 @@ import { DalyMosfetStatusResponse, DalySocResponse, DalyStatusResponse } from "@
 import { CardContent, Card } from "@/components/ui/card"
 
 
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from "@/components/ui/collapsible"
-
 interface Props {
     soc: DalySocResponse,
     status: DalyStatusResponse,
@@ -55,9 +49,9 @@ export function Dashboard({ soc, status, mosfet_status }: Props) {
                 <Card>
                     <CardContent className="flex flex-col items-center justify-center gap-4 p-6">
                         <div className="text-2xl font-bold">Mode</div>
-                        <p className="text-gray-500 dark:text-gray-400">{
-                            mosfet_status.mode
-                        }</p>
+                        {mosfet_status.mode === 'discharging' && (<BoltIcon className="w-8 h-8 text-red-500" />)}
+                        {mosfet_status.mode === 'charging' && (<BoltIcon className="w-8 h-8 text-green-500" />)}
+                        <p className="text-gray-500 dark:text-gray-400">{mosfet_status.mode}</p>
                     </CardContent>
                 </Card>
                 <Card>

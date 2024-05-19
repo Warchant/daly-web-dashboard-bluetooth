@@ -114,11 +114,7 @@ export function unpackResponses(data: DataView): Response[] {
 
     return responses.filter((r) => {
         const crc = calcCrc(r.slice(0, 12));
-        const ok = crc === r[12];
-        if (!ok) {
-            console.error("CRC mismatch", crc, r[12], r)
-        }
-        return true  // TODO: sometimes CRC does not match...
+        return crc === r[12]; // sometimes it does not match... no idea if those commands are good
     }).map((r) => {
         const command = r[2];
         const response_bytes = r.slice(4, RESP_LEN - 1)
@@ -217,6 +213,6 @@ export class Daly {
     }
 }
 
-function delay(ms: number) {
+export function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }

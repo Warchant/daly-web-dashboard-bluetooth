@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 import { useBluetooth } from "./bt_provider";
-import { Daly, DalyMosfetStatusResponse, DalySocResponse, DalyStatusResponse } from "@/bt/util";
+import { Daly, DalyMosfetStatusResponse, DalySocResponse, DalyStatusResponse, delay } from "@/bt/util";
 import { Dashboard } from "./dashboard";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
@@ -34,18 +34,24 @@ export function Bluetooth() {
 
     const wrapLogs = (fn: any) => {
         return (res: any) => {
-            setLogs((logs) => [res, ...logs])
+            setLogs((logs) => [res, ...logs].slice(0, 20))
             fn(res)
         }
     }
 
+    const initialized = useRef(false)
     useEffect(() => {
-        daly.on("soc", wrapLogs(setSoc))
-        daly.on("status", wrapLogs(setStatus))
-        daly.on("mosfet_status", wrapLogs(setMosfetStatus))
+        if (!initialized.current) {
+            initialized.current = true
+
+            daly.on("soc", wrapLogs(setSoc))
+            daly.on("status", wrapLogs(setStatus))
+            daly.on("mosfet_status", wrapLogs(setMosfetStatus))
+        }
     }, [])
 
     useEffect(() => {
+        console.log("starting polling")
         const id = setInterval(() => {
             async function query() {
                 await daly.get_soc()
@@ -65,9 +71,10 @@ export function Bluetooth() {
         <div>
             <Dashboard soc={soc} status={status} mosfet_status={mosfetStatus} />
             <Collapsible>
-                <CollapsibleTrigger>Logs...</CollapsibleTrigger>
+                <CollapsibleTrigger>Logs</CollapsibleTrigger>
                 <CollapsibleContent>
                     <pre>
+                        {logs.length === 0 && "No logs yet"}
                         {logs.map((log, i) => (
                             <div key={i}>{JSON.stringify(log)}</div>
                         ))}

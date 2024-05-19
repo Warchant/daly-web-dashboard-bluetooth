@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from '@/components/ui/button';
-import React, { createContext, ReactNode, useContext, useState } from 'react';
-import { Spinner } from './spinner';
-import { useToast } from '@/components/ui/use-toast';
+import { Button } from "@/components/ui/button";
+import React, { createContext, ReactNode, useContext, useState } from "react";
+import { Spinner } from "./spinner";
+import { useToast } from "@/components/ui/use-toast";
 
 // Define the shape of the context
 interface BluetoothContextData {
@@ -15,7 +15,9 @@ interface BluetoothContextData {
 }
 
 // Create the context
-const BluetoothContext = createContext<BluetoothContextData | undefined>(undefined);
+const BluetoothContext = createContext<BluetoothContextData | undefined>(
+    undefined,
+);
 
 interface Props {
     children: ReactNode;
@@ -23,60 +25,68 @@ interface Props {
 
 // Create the provider component
 export const BluetoothProvider: React.FC<Props> = ({ children }: Props) => {
-    const { toast } = useToast()
+    const { toast } = useToast();
     const [isConnecting, setIsConnecting] = useState(false);
     const [ctx, setCtx] = useState<BluetoothContextData | undefined>(undefined);
 
     const connect = async () => {
-        setIsConnecting(true)
+        setIsConnecting(true);
         try {
             const options = {
-                filters: [
-                    { services: ['0000fff0-0000-1000-8000-00805f9b34fb'] }
-                ]
+                filters: [{ services: ["0000fff0-0000-1000-8000-00805f9b34fb"] }],
             };
 
             const device = await window.navigator.bluetooth.requestDevice(options);
 
-            device.addEventListener('gattserverdisconnected', () => {
-                alert("Disconnected")
-                setCtx(undefined)
-            })
+            device.addEventListener("gattserverdisconnected", () => {
+                alert("Disconnected");
+                setCtx(undefined);
+            });
 
             if (!device.gatt) {
-                alert("device.gatt is undefined, cannot proceed")
-                return
+                alert("device.gatt is undefined, cannot proceed");
+                return;
             }
 
             // start to watch advertisements
             const server = await device.gatt.connect();
-            const service = await server.getPrimaryService('0000fff0-0000-1000-8000-00805f9b34fb');
-            const rx = await service.getCharacteristic('0000fff1-0000-1000-8000-00805f9b34fb');
-            const tx = await service.getCharacteristic('0000fff2-0000-1000-8000-00805f9b34fb');
+            const service = await server.getPrimaryService(
+                "0000fff0-0000-1000-8000-00805f9b34fb",
+            );
+            const rx = await service.getCharacteristic(
+                "0000fff1-0000-1000-8000-00805f9b34fb",
+            );
+            const tx = await service.getCharacteristic(
+                "0000fff2-0000-1000-8000-00805f9b34fb",
+            );
+
             setCtx({ isConnecting, device, service, rx, tx });
-        }
-        catch (e) {
+        } catch (e) {
             toast({
-                title: "Error",
+                title: "Bluetooth provider error",
                 description: `${e}`,
-            })
+            });
+        } finally {
+            setIsConnecting(false);
         }
-        finally {
-            setIsConnecting(false)
-        }
-    }
+    };
 
     if (ctx) {
         return (
             <BluetoothContext.Provider value={ctx}>
                 {children}
             </BluetoothContext.Provider>
-        )
+        );
     }
 
     return (
         <div className="flex h-screen w-full items-center justify-center">
-            <Button onClick={connect} size="lg" className="relative" disabled={isConnecting}>
+            <Button
+                onClick={connect}
+                size="lg"
+                className="relative"
+                disabled={isConnecting}
+            >
                 {isConnecting && <Spinner />} Connect to Daly BMS
                 <span className="absolute inset-0 flex items-center justify-center transition-opacity " />
             </Button>
@@ -88,7 +98,7 @@ export const BluetoothProvider: React.FC<Props> = ({ children }: Props) => {
 export const useBluetooth = (): BluetoothContextData => {
     const context = useContext(BluetoothContext);
     if (!context) {
-        throw new Error('useBluetooth must be used within a BluetoothProvider');
+        throw new Error("useBluetooth must be used within a BluetoothProvider");
     }
     return context;
 };

@@ -3,75 +3,100 @@
 import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 import { useBluetooth } from "./bt_provider";
-import { Daly, DalyMosfetStatusResponse, DalySocResponse, DalyStatusResponse, delay } from "@/bt/util";
+import {
+    Daly,
+    DalyMosfetStatusResponse,
+    DalySocResponse,
+    DalyStatusResponse,
+} from "@/bt/util";
 import { Dashboard } from "./dashboard";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { toast } from "@/components/ui/use-toast";
 
 export function Bluetooth() {
     const { tx, rx } = useBluetooth();
-    const [logs, setLogs] = useState<any[]>([])
+    const [logs, setLogs] = useState<any[]>([]);
 
     const daly = new Daly(tx, rx);
     const [soc, setSoc] = useState<DalySocResponse>({
         current: 0,
         soc: 0,
-        voltage: 0
+        voltage: 0,
     });
     const [status, setStatus] = useState<DalyStatusResponse>({
         charger_running: false,
         load_running: false,
         num_cells: 0,
         num_cycles: 0,
-        num_temps: 0
+        num_temps: 0,
     });
     const [mosfetStatus, setMosfetStatus] = useState<DalyMosfetStatusResponse>({
         capacity_ah: 0,
         charging_mosfet: 0,
         discharging_mosfet: 0,
-        mode: "stationary"
+        mode: "stationary",
     });
+
+    const writeLog = (res: any) => {
+        setLogs((logs) => [res, ...logs].slice(0, 20));
+    };
 
     const wrapLogs = (fn: any) => {
         return (res: any) => {
-            setLogs((logs) => [res, ...logs].slice(0, 20))
-            fn(res)
-        }
-    }
+            writeLog(res);
+            fn(res);
+        };
+    };
 
-    const initialized = useRef(false)
+    const initialized = useRef(false);
     useEffect(() => {
         if (!initialized.current) {
-            initialized.current = true
+            initialized.current = true;
 
-            daly.on("soc", wrapLogs(setSoc))
-            daly.on("status", wrapLogs(setStatus))
-            daly.on("mosfet_status", wrapLogs(setMosfetStatus))
+            writeLog("subscribing on events");
+
+            daly.on("soc", wrapLogs(setSoc));
+            daly.on("status", wrapLogs(setStatus));
+            daly.on("mosfet_status", wrapLogs(setMosfetStatus));
         }
-    }, [])
+    }, [daly.started]);
 
     useEffect(() => {
-        console.log("starting polling")
+        writeLog("starting polling");
+
         const id = setInterval(() => {
             async function query() {
-                await daly.get_soc()
-                await daly.get_mosfet_status()
-                await daly.get_status()
+                await daly.get_soc();
+                await daly.get_mosfet_status();
+                await daly.get_status();
             }
 
             query()
-        }, 2000)
+                .then(() => {
+                    writeLog("queried");
+                })
+                .catch((e) => {
+                    toast({
+                        title: "Query error",
+                        description: e.toString(),
+                    });
+                });
+        }, 2000);
 
         return () => {
-            clearInterval(id)
-        }
-    }, [])
+            clearInterval(id);
+        };
+    }, [daly.started]);
 
     return (
         <div>
             <Dashboard soc={soc} status={status} mosfet_status={mosfetStatus} />
             <Collapsible>
-                <CollapsibleTrigger>Logs</CollapsibleTrigger>
+                <CollapsibleTrigger>Debug logs</CollapsibleTrigger>
                 <CollapsibleContent>
                     <pre>
                         {logs.length === 0 && "No logs yet"}
@@ -82,5 +107,5 @@ export function Bluetooth() {
                 </CollapsibleContent>
             </Collapsible>
         </div>
-    )
+    );
 }

@@ -30,6 +30,9 @@ export function Dashboard({ soc, status, mosfet_status }: Props) {
                 </Card>
                 <Card>
                     <CardContent className="flex flex-col items-center justify-center gap-4 p-6">
+                        {status.charger_running && <BoltIcon className="w-8 h-8 text-green-500" />}
+                        {status.load_running && <BoltIcon className="w-8 h-8 text-red-500" />}
+
                         <div className="text-4xl font-bold">{soc.current}</div>
                         <p className="text-gray-500 dark:text-gray-400">Current</p>
                     </CardContent>
@@ -44,7 +47,6 @@ export function Dashboard({ soc, status, mosfet_status }: Props) {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6 xl:gap-8">
                 <Card>
                     <CardContent className="flex flex-col items-center justify-center gap-4 p-6">
-                        <BoltIcon className="w-8 h-8 text-green-500" />
                         <div className="text-2xl font-bold">Mode</div>
                         <p className="text-gray-500 dark:text-gray-400">{
                             mosfet_status.mode

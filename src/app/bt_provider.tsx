@@ -28,39 +28,41 @@ export const BluetoothProvider: React.FC<Props> = ({ children }: Props) => {
 
     if (typeof window === 'undefined') {
         return (
-            <div>Server side...</div>
+            <div>Loading...</div>
         )
     }
 
     const connect = async () => {
         setIsConnecting(true)
-        const options = {
-            filters: [
-                { services: ['0000fff0-0000-1000-8000-00805f9b34fb'] }
-            ]
-        };
+        try {
+            const options = {
+                filters: [
+                    { services: ['0000fff0-0000-1000-8000-00805f9b34fb'] }
+                ]
+            };
 
-        const device = await window.navigator.bluetooth.requestDevice(options);
+            const device = await window.navigator.bluetooth.requestDevice(options);
 
-        device.addEventListener('gattserverdisconnected', () => {
-            alert("Disconnected")
-            setCtx(undefined)
-        })
+            device.addEventListener('gattserverdisconnected', () => {
+                alert("Disconnected")
+                setCtx(undefined)
+            })
 
-        if (!device.gatt) {
-            alert("device.gatt is undefined, cannot proceed")
-            setIsConnecting(false)
-            return
+            if (!device.gatt) {
+                alert("device.gatt is undefined, cannot proceed")
+                return
+            }
+
+            // start to watch advertisements
+            const server = await device.gatt.connect();
+            const service = await server.getPrimaryService('0000fff0-0000-1000-8000-00805f9b34fb');
+            const rx = await service.getCharacteristic('0000fff1-0000-1000-8000-00805f9b34fb');
+            const tx = await service.getCharacteristic('0000fff2-0000-1000-8000-00805f9b34fb');
+            setCtx({ isConnecting, device, service, rx, tx });
         }
-
-        // start to watch advertisements
-        const server = await device.gatt.connect();
-        const service = await server.getPrimaryService('0000fff0-0000-1000-8000-00805f9b34fb');
-        const rx = await service.getCharacteristic('0000fff1-0000-1000-8000-00805f9b34fb');
-        const tx = await service.getCharacteristic('0000fff2-0000-1000-8000-00805f9b34fb');
-
-        setIsConnecting(false)
-        setCtx({ isConnecting, device, service, rx, tx });
+        finally {
+            setIsConnecting(false)
+        }
     }
 
     if (ctx) {

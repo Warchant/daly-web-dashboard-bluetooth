@@ -90,8 +90,8 @@ export const unpackResponse_0x94 = (parts: DataView): DalyStatusResponse => {
     let data = {
         "num_cells": parts.getInt8(0),
         "num_temps": parts.getInt8(1),
-        "charging": Boolean(parts.getInt8(2)),
-        "discharging": Boolean(parts.getInt8(3)),
+        "charger_running": Boolean(parts.getInt8(2)),
+        "load_running": Boolean(parts.getInt8(3)),
         "num_cycles": parts.getInt16(5),
     };
 

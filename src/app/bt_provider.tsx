@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { Spinner } from './spinner';
+import { useToast } from '@/components/ui/use-toast';
 
 // Define the shape of the context
 interface BluetoothContextData {
@@ -22,6 +23,7 @@ interface Props {
 
 // Create the provider component
 export const BluetoothProvider: React.FC<Props> = ({ children }: Props) => {
+    const { toast } = useToast()
     const [isConnecting, setIsConnecting] = useState(false);
     const [ctx, setCtx] = useState<BluetoothContextData | undefined>(undefined);
 
@@ -52,6 +54,12 @@ export const BluetoothProvider: React.FC<Props> = ({ children }: Props) => {
             const rx = await service.getCharacteristic('0000fff1-0000-1000-8000-00805f9b34fb');
             const tx = await service.getCharacteristic('0000fff2-0000-1000-8000-00805f9b34fb');
             setCtx({ isConnecting, device, service, rx, tx });
+        }
+        catch (e) {
+            toast({
+                title: "Error",
+                description: `${e}`,
+            })
         }
         finally {
             setIsConnecting(false)

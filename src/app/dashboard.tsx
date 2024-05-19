@@ -6,6 +6,13 @@
 import { DalyMosfetStatusResponse, DalySocResponse, DalyStatusResponse } from "@/bt/util";
 import { CardContent, Card } from "@/components/ui/card"
 
+
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+
 interface Props {
     soc: DalySocResponse,
     status: DalyStatusResponse,

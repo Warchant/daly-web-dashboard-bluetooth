@@ -70,12 +70,6 @@ export function Dashboard({ soc, status, mosfet_status, temperature }: Props) {
 				<Card>
 					<CardContent className="flex flex-col items-center justify-center gap-4 p-6">
 						<div className="text-2xl font-bold">{mosfet_status.mode}</div>
-						{mosfet_status.mode === "discharging" && (
-							<BoltIcon className="w-8 h-8 text-red-500" />
-						)}
-						{mosfet_status.mode === "charging" && (
-							<BoltIcon className="w-8 h-8 text-green-500" />
-						)}
 						<p className="text-gray-500 dark:text-gray-400">Mode</p>
 					</CardContent>
 				</Card>

@@ -128,7 +128,11 @@ export function unpackResponses(data: DataView): Response[] {
     const RESP_LEN = 13;
     let responses: Uint8Array[] = [];
     for (let i = 0; i < data.byteLength; i += RESP_LEN) {
-        responses.push(new Uint8Array(data.buffer, i, RESP_LEN));
+        try {
+            responses.push(new Uint8Array(data.buffer, i, RESP_LEN));
+        } catch (e) {
+            console.error(e)
+        }
     }
 
     return responses

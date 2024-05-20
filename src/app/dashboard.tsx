@@ -81,7 +81,7 @@ export function Dashboard({ soc, status, mosfet_status, temperature }: Props) {
 				</Card>
 				<Card>
 					<CardContent className="flex flex-col items-center justify-center gap-4 p-6">
-						<div className="text-4xl font-bold">
+						<div className="text-2xl font-bold">
 							{mosfet_status.capacity_ah}A
 						</div>
 						<p className="text-gray-500 dark:text-gray-400">Capacity</p>
@@ -89,7 +89,7 @@ export function Dashboard({ soc, status, mosfet_status, temperature }: Props) {
 				</Card>
 				<Card>
 					<CardContent className="flex flex-col items-center justify-center gap-4 p-6">
-						<div className="text-4xl font-bold">{status.num_cycles}</div>
+						<div className="text-2xl font-bold">{status.num_cycles}</div>
 						<p className="text-gray-500 dark:text-gray-400">Cycles</p>
 					</CardContent>
 				</Card>

@@ -10,7 +10,7 @@ import {
 	DalyStatusResponse,
 	DalyTemperatureResponse,
 } from "@/bt/util";
-import { Dashboard } from "./dashboard";
+import { Dashboard, DashboardProps } from "./dashboard";
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -95,7 +95,7 @@ export function Bluetooth() {
 						description: e.toString(),
 					});
 				});
-		}, 2000);
+		}, 1000);
 
 		return () => {
 			clearInterval(id);

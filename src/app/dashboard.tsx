@@ -10,15 +10,42 @@ import {
 	DalyTemperatureResponse,
 } from "@/bt/util";
 import { CardContent, Card } from "@/components/ui/card";
+import { formatHours, MovingAverage } from "./util";
+import { useState } from "react";
 
-interface Props {
+export interface DashboardProps {
 	soc: DalySocResponse;
 	status: DalyStatusResponse;
 	mosfet_status: DalyMosfetStatusResponse;
 	temperature: DalyTemperatureResponse;
 }
 
-export function Dashboard({ soc, status, mosfet_status, temperature }: Props) {
+export function Dashboard({ soc, status, mosfet_status, temperature }: DashboardProps) {
+	const [current] = useState<MovingAverage>(new MovingAverage(30));
+	current.push(soc.current);
+
+	const avg = current.average()
+	let remaining: string = "∞"
+	let additional = undefined
+	let currentColor = "text-gray-900"
+	if (avg > 0) {
+		// charging
+		const totalCapacity = mosfet_status.capacity_ah / (soc.soc / 100);
+		const remainingToChargeAh = totalCapacity - mosfet_status.capacity_ah;
+		const remainingToChargeHours = remainingToChargeAh / avg; // hours
+		remaining = formatHours(remainingToChargeHours)
+		additional = "charged"
+		currentColor = "text-green-800"
+	} else if (avg < 0) {
+		// discharging
+		const remainingToDischargeAh = mosfet_status.capacity_ah;
+		const remainingToDischargeHours = remainingToDischargeAh / avg; // hours
+		remaining = formatHours(remainingToDischargeHours)
+		additional = "empty"
+		currentColor = "text-red-800"
+	}
+
+
 	return (
 		<div className="flex flex-col gap-6 md:gap-8 px-4 md:px-6 py-12">
 			<div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
@@ -47,7 +74,7 @@ export function Dashboard({ soc, status, mosfet_status, temperature }: Props) {
 							<BoltIcon className="w-8 h-8 text-red-500" />
 						)}
 
-						<div className="text-4xl font-bold">{soc.current}A</div>
+						<div className={`text-4xl font-bold ${currentColor}`}>{avg.toFixed(2)}A</div>
 						<p className="text-gray-500 dark:text-gray-400">Current</p>
 					</CardContent>
 				</Card>
@@ -69,8 +96,8 @@ export function Dashboard({ soc, status, mosfet_status, temperature }: Props) {
 				</Card>
 				<Card>
 					<CardContent className="flex flex-col items-center justify-center gap-4 p-6">
-						<div className="text-2xl font-bold">{mosfet_status.mode}</div>
-						<p className="text-gray-500 dark:text-gray-400">Mode</p>
+						<div className="text-2xl font-bold">{remaining}</div>
+						<p className="text-gray-500 dark:text-gray-400">Remaining time {additional && `until ${additional}`}</p>
 					</CardContent>
 				</Card>
 				<Card>
@@ -78,7 +105,7 @@ export function Dashboard({ soc, status, mosfet_status, temperature }: Props) {
 						<div className="text-2xl font-bold">
 							{mosfet_status.capacity_ah}A
 						</div>
-						<p className="text-gray-500 dark:text-gray-400">Capacity</p>
+						<p className="text-gray-500 dark:text-gray-400">Remaining capacity</p>
 					</CardContent>
 				</Card>
 				<Card>

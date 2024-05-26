@@ -1,0 +1,32 @@
+{
+    "name": "Daly BMS Dashboard",
+    "short_name": "Daly BMS Dashboard",
+    "icons": [
+        {
+            "src": "/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#FFFFFF",
+    "background_color": "#FFFFFF",
+    "start_url": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "id": "daly-bms-dashboard",
+    "description": "Dashboard which is automatically updated with the latest data from a Daly BMS over Bluetooth.",
+    "lang": "en",
+    "dir": "ltr",
+    "categories": [
+        "utilities"
+    ],
+    "launch_handler": {
+        "client_mode": "focus-existing"
+    }
+}

@@ -18,11 +18,29 @@
     "background_color": "#FFFFFF",
     "start_url": "/",
     "display": "standalone",
-    "orientation": "portrait",
+    "orientation": "any",
     "id": "daly-bms-dashboard",
     "description": "Dashboard which is automatically updated with the latest data from a Daly BMS over Bluetooth.",
     "lang": "en",
     "dir": "ltr",
+    "screenshots": [
+        {
+            "form_factor": "narrow",
+            "label": "Mobile dashboard view",
+            "platform": "android",
+            "sizes": "552x1280",
+            "src": "/screenshot_mobile.webp",
+            "type": "image/webp"
+        },
+        {
+            "form_factor": "wide",
+            "label": "PC Dashboard view",
+            "platform": "windows",
+            "sizes": "2880x1530",
+            "src": "/screenshot_pc_3.webp",
+            "type": "image/webp"
+        }
+    ],
     "categories": [
         "utilities"
     ],

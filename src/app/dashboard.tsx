@@ -1,8 +1,3 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/fjd8mPCJPRF
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
 import {
 	DalyMosfetStatusResponse,
 	DalySocResponse,
@@ -10,8 +5,9 @@ import {
 	DalyTemperatureResponse,
 } from "@/bt/util";
 import { CardContent, Card } from "@/components/ui/card";
-import { formatHours, MovingAverage } from "./util";
-import { useState } from "react";
+import { formatHours } from "./util";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export interface DashboardProps {
 	soc: DalySocResponse;
@@ -21,10 +17,8 @@ export interface DashboardProps {
 }
 
 export function Dashboard({ soc, status, mosfet_status, temperature }: DashboardProps) {
-	const [current] = useState<MovingAverage>(new MovingAverage(30));
-	current.push(soc.current);
+	const avg = soc.current;
 
-	const avg = current.average()
 	let remaining: string = "∞"
 	let additional = undefined
 	let currentColor = "text-gray-900"

@@ -110,7 +110,7 @@ export function Bluetooth() {
 				mosfet_status={mosfetStatus}
 				temperature={temperature}
 			/>
-			<Collapsible>
+			{/* <Collapsible>
 				<CollapsibleTrigger>Debug logs</CollapsibleTrigger>
 				<CollapsibleContent>
 					<pre>
@@ -120,7 +120,7 @@ export function Bluetooth() {
 						))}
 					</pre>
 				</CollapsibleContent>
-			</Collapsible>
+			</Collapsible> */}
 		</div>
 	);
 }

@@ -23,29 +23,55 @@ interface Props {
 	children: ReactNode;
 }
 
+const MAX_RECONNECTS = 5;
+
 // Create the provider component
 export const BluetoothProvider: React.FC<Props> = ({ children }: Props) => {
 	const { toast } = useToast();
 	const [isConnecting, setIsConnecting] = useState(false);
 	const [ctx, setCtx] = useState<BluetoothContextData | undefined>(undefined);
+	const [reconnectCounter, setReconnectCounter] = useState(0);
 
-	const connect = async () => {
-		setIsConnecting(true);
+	const pickDevice = async () => {
+		const options = {
+			filters: [{ services: ["0000fff0-0000-1000-8000-00805f9b34fb"] }],
+		};
+
 		try {
-			const options = {
-				filters: [{ services: ["0000fff0-0000-1000-8000-00805f9b34fb"] }],
-			};
+			const d = await window.navigator.bluetooth.requestDevice(options);
 
-			const device = await window.navigator.bluetooth.requestDevice(options);
+			d.addEventListener("gattserverdisconnected", () => {
+				console.log("Disconnected...")
 
-			device.addEventListener("gattserverdisconnected", () => {
-				alert("Disconnected");
-				setCtx(undefined);
+				if (reconnectCounter < MAX_RECONNECTS) {
+					setTimeout(() => {
+						console.log(`[${reconnectCounter + 1}/${MAX_RECONNECTS}] Reconnecting...`)
+						connect(d); // reconnect
+					}, 1000);
+				}
 			});
 
+			connect(d);
+		} catch (e) {
+			toast({
+				title: "Cannot pick a device",
+				description: `${e}`,
+			});
+
+			setReconnectCounter((prev) => prev + 1);
+		}
+	}
+
+
+	const connect = async (device: BluetoothDevice) => {
+		setIsConnecting(true);
+		try {
+			if (!device) {
+				throw new Error("No device selected");
+			}
+
 			if (!device.gatt) {
-				alert("device.gatt is undefined, cannot proceed");
-				return;
+				throw new Error("device.gatt is undefined, cannot proceed");
 			}
 
 			// start to watch advertisements
@@ -63,9 +89,11 @@ export const BluetoothProvider: React.FC<Props> = ({ children }: Props) => {
 			setCtx({ isConnecting, device, service, rx, tx });
 		} catch (e) {
 			toast({
-				title: "Bluetooth provider error",
+				title: "Cannot connect",
 				description: `${e}`,
 			});
+
+			setReconnectCounter((prev) => prev + 1);
 		} finally {
 			setIsConnecting(false);
 		}
@@ -82,7 +110,7 @@ export const BluetoothProvider: React.FC<Props> = ({ children }: Props) => {
 	return (
 		<div className="flex h-[100dvh] w-full items-center justify-center">
 			<Button
-				onClick={connect}
+				onClick={pickDevice}
 				size="lg"
 				className="relative"
 				disabled={isConnecting}

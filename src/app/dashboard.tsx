@@ -5,9 +5,10 @@ import {
 	DalyTemperatureResponse,
 } from "@/bt/util";
 import { CardContent, Card } from "@/components/ui/card";
-import { formatHours } from "./util";
+import { formatHours, MovingAverage } from "./util";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { useState } from "react";
 
 export interface DashboardProps {
 	soc: DalySocResponse;
@@ -17,7 +18,10 @@ export interface DashboardProps {
 }
 
 export function Dashboard({ soc, status, mosfet_status, temperature }: DashboardProps) {
-	const avg = soc.current;
+	const [current] = useState(new MovingAverage(10))
+	current.push(soc.current);
+
+	const avg = current.average();
 
 	let remaining: string = "∞"
 	let additional = undefined

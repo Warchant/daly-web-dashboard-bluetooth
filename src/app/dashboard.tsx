@@ -8,8 +8,6 @@ import {
 } from "@/bt/util";
 import { CardContent, Card } from "@/components/ui/card";
 import { formatHours, MovingAverage } from "./util";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { useRef } from "react";
 
 export interface DashboardProps {

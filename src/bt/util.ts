@@ -231,6 +231,7 @@ export class Daly {
 
     private async query(command: number): Promise<void> {
         const cmd = dalyCommandMessage(command);
+        // @ts-ignore
         await this.tx.writeValue(cmd);
     }
 

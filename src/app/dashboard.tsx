@@ -1,3 +1,5 @@
+"use client";
+
 import {
 	DalyMosfetStatusResponse,
 	DalySocResponse,
@@ -8,7 +10,7 @@ import { CardContent, Card } from "@/components/ui/card";
 import { formatHours, MovingAverage } from "./util";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useRef } from "react";
 
 export interface DashboardProps {
 	soc: DalySocResponse;
@@ -18,10 +20,10 @@ export interface DashboardProps {
 }
 
 export function Dashboard({ soc, status, mosfet_status, temperature }: DashboardProps) {
-	const [current] = useState(new MovingAverage(10))
-	current.push(soc.current);
+	const current = useRef(new MovingAverage(2));
+	current.current.push(soc.current);
 
-	const avg = current.average();
+	const avg = current.current.average();
 
 	let remaining: string = "∞"
 	let additional = undefined
@@ -37,7 +39,7 @@ export function Dashboard({ soc, status, mosfet_status, temperature }: Dashboard
 	} else if (avg < 0) {
 		// discharging
 		const remainingToDischargeAh = mosfet_status.capacity_ah;
-		const remainingToDischargeHours = remainingToDischargeAh / avg; // hours
+		const remainingToDischargeHours = remainingToDischargeAh / Math.abs(avg); // hours
 		remaining = formatHours(remainingToDischargeHours)
 		additional = "empty"
 		currentColor = "text-red-800"
@@ -101,7 +103,7 @@ export function Dashboard({ soc, status, mosfet_status, temperature }: Dashboard
 				<Card>
 					<CardContent className="flex flex-col items-center justify-center gap-4 p-6">
 						<div className="text-2xl font-bold">
-							{mosfet_status.capacity_ah}A
+							{mosfet_status.capacity_ah}Ah
 						</div>
 						<p className="text-gray-500 dark:text-gray-400">Remaining capacity</p>
 					</CardContent>

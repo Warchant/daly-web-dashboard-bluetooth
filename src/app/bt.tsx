@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useMemo } from "react";
 import { useEffect } from "react";
 import { useBluetooth } from "./bt_provider";
 import {
@@ -10,19 +10,14 @@ import {
 	DalyStatusResponse,
 	DalyTemperatureResponse,
 } from "@/bt/util";
-import { Dashboard, DashboardProps } from "./dashboard";
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Dashboard } from "./dashboard";
 import { toast } from "@/components/ui/use-toast";
 
 export function Bluetooth() {
 	const { tx, rx } = useBluetooth();
 	const [logs, setLogs] = useState<any[]>([]);
 
-	const daly = new Daly(tx, rx);
+	const daly = useMemo(() => new Daly(tx, rx), [tx, rx]);
 	const [soc, setSoc] = useState<DalySocResponse>({
 		current: 0,
 		soc: 0,
@@ -72,7 +67,7 @@ export function Bluetooth() {
 			daly.on("mosfet_status", wrapLogs(setMosfetStatus));
 			daly.on("max_min_temperature", wrapLogs(setTemperature));
 		}
-	}, [daly.started]);
+	}, [daly]);
 
 	useEffect(() => {
 		writeLog("starting polling");
@@ -100,7 +95,7 @@ export function Bluetooth() {
 		return () => {
 			clearInterval(id);
 		};
-	}, [daly.started]);
+	}, [daly]);
 
 	return (
 		<div>

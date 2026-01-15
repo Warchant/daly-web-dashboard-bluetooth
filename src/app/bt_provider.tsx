@@ -87,6 +87,7 @@ export const BluetoothProvider: React.FC<Props> = ({ children }: Props) => {
 			);
 
 			setCtx({ isConnecting, device, service, rx, tx });
+			setReconnectCounter(0); // Reset counter on successful connection
 		} catch (e) {
 			toast({
 				title: "Cannot connect",
